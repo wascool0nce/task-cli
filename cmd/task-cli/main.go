@@ -7,8 +7,8 @@ import (
 
 func main() {
 	var s, sep string
-	for i := 1; i < len(os.Args); i++ {
-		s += sep + os.Args[i]
+	for _, val := range os.Args[1:] {
+		s += sep + val
 		sep = " "
 	}
 	fmt.Println(s)
