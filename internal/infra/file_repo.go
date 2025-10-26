@@ -1,15 +1,21 @@
 package infra
 
+import (
+	"encoding/json"
+	"os"
+	"task-cli/internal/domain"
+)
+
 type TaskRepository interface {
-	Save(task Task) error
-	GetAll() ([]Task, error)
+	Save(task domain.Task) error
+	GetAll() ([]domain.Task, error)
 }
 
 type FileTaskRepository struct {
 	path string
 }
 
-func (r FileRepository) Save(task Task) error {
+func (r FileTaskRepository) Save(task domain.Task) error {
 	data, err := json.MarshalIndent(task, "", "  ")
 	if err != nil {
 		return err
@@ -18,12 +24,18 @@ func (r FileRepository) Save(task Task) error {
 	return os.WriteFile(r.path, data, 0644)
 }
 
-func (r FileRepository) GetAll() ([]Task, error) {
+func (r FileTaskRepository) GetAll() ([]domain.Task, error) {
 	content, err := os.ReadFile(r.path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return []Task{}, nil
+			return []domain.Task{}, nil
 		}
+		return nil, err
 	}
-	return nil, err
+
+	var tasks []domain.Task
+	if err := json.Unmarshal(content, &tasks); err != nil {
+		return nil, err
+	}
+	return tasks, nil
 }
