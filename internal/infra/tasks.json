@@ -1,0 +1,9 @@
+[
+  {
+    "id": 1,
+    "description": "Tests task 1",
+    "status": "todo",
+    "createdAt": "2025-10-28T16:09:09.462512025+03:00",
+    "updatedAt": "0001-01-01T00:00:00Z"
+  }
+]

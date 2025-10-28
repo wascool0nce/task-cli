@@ -1,22 +1,22 @@
 package domain
 
 import (
-	"time"
 	"errors"
+	"time"
 )
 
 const (
-	toDo = "todo"
+	toDo       = "todo"
 	inProgress = "in-progress"
-	done = "done"
+	done       = "done"
 )
 
 type Task struct {
-	Id			int
-	Description	string
-	Status		string
-	CreatedAt	time.Time
-	UpdatedAt	time.Time
+	Id          int       `json:"id"`
+	Description string    `json:"description"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
 func (t *Task) ChangeStatus(status string) error {

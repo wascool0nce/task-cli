@@ -16,7 +16,9 @@ type FileTaskRepository struct {
 }
 
 func (r FileTaskRepository) Save(task domain.Task) error {
-	data, err := json.MarshalIndent(task, "", "  ")
+	tasks, _ := r.GetAll()
+	tasks = append(tasks, task)
+	data, err := json.MarshalIndent(tasks, "", "  ")
 	if err != nil {
 		return err
 	}

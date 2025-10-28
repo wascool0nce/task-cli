@@ -1,6 +1,8 @@
 package infra
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"task-cli/internal/domain"
 	"testing"
@@ -26,12 +28,17 @@ func TestSave(t *testing.T) {
 	t.Run("valid save", func(t *testing.T) {
 		_, err := os.Create("tasks.json")
 		if err != nil {
-			t.Errorf("dont creat file tasks.json")
+			t.Errorf("dont create file tasks.json")
 		}
 		repo := FileTaskRepository{path: "tasks.json"}
 		if err := repo.Save(tasks[0]); err != nil {
-			t.Errorf("in repo dont creat new task")
+			t.Errorf("in repo dont create new task")
+		}
+		, err := repo.GetAll()
+
+		err = os.Remove("tasks.json")
+		if err != nil {
+			t.Errorf("dont remove file tasks.json")
 		}
 	})
-
 }
