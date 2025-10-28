@@ -1,9 +1,8 @@
 package infra
 
 import (
-	"encoding/json"
-	"fmt"
 	"os"
+	"reflect"
 	"task-cli/internal/domain"
 	"testing"
 	"time"
@@ -16,12 +15,14 @@ func TestSave(t *testing.T) {
 			Description: "Tests task 1",
 			Status:      "todo",
 			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
 		},
 		{
 			Id:          2,
 			Description: "Tests task 2",
 			Status:      "in-progress",
 			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
 		},
 	}
 
@@ -34,11 +35,21 @@ func TestSave(t *testing.T) {
 		if err := repo.Save(tasks[0]); err != nil {
 			t.Errorf("in repo dont create new task")
 		}
-		, err := repo.GetAll()
-
-		err = os.Remove("tasks.json")
-		if err != nil {
-			t.Errorf("dont remove file tasks.json")
+		if err := repo.Save(tasks[1]); err != nil {
+			t.Errorf("in repo dont create new task")
 		}
+		data, err := repo.GetAll()
+		if err != nil {
+			t.Errorf("dont get all tasks")
+		}
+
+		ok := reflect.DeepEqual(tasks, data)
+		if !ok {
+			t.Errorf("struct dont equal")
+		}
+		// err = os.Remove("tasks.json")
+		// if err != nil {
+		// 	t.Errorf("dont remove file tasks.json")
+		// }
 	})
 }
