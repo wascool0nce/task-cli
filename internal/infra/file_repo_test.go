@@ -9,20 +9,21 @@ import (
 )
 
 func TestSave(t *testing.T) {
-	tasks := [2]domain.Task{
+	now := time.Now().Truncate(time.Second)
+	tasks := []domain.Task{
 		{
 			Id:          1,
 			Description: "Tests task 1",
 			Status:      "todo",
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			CreatedAt:   now,
+			UpdatedAt:   now,
 		},
 		{
 			Id:          2,
 			Description: "Tests task 2",
 			Status:      "in-progress",
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			CreatedAt:   now,
+			UpdatedAt:   now,
 		},
 	}
 
@@ -47,9 +48,9 @@ func TestSave(t *testing.T) {
 		if !ok {
 			t.Errorf("struct dont equal")
 		}
-		// err = os.Remove("tasks.json")
-		// if err != nil {
-		// 	t.Errorf("dont remove file tasks.json")
-		// }
+		err = os.Remove("tasks.json")
+		if err != nil {
+			t.Errorf("dont remove file tasks.json")
+		}
 	})
 }
