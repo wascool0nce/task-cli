@@ -2,8 +2,11 @@ package infra
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
+	"sort"
 	"task-cli/internal/domain"
+	"time"
 )
 
 type TaskRepository interface {
@@ -12,23 +15,15 @@ type TaskRepository interface {
 }
 
 type FileTaskRepository struct {
-	Path string
+	path string
 }
 
-func (r FileTaskRepository) Save(task domain.Task) error {
-
-	tasks, _ := r.GetAll()
-	tasks = append(tasks, task)
-	data, err := json.MarshalIndent(tasks, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(r.Path, data, 0644)
+func NewFileTaskRepository(path string) *FileTaskRepository {
+	return &FileTaskRepository{path: path}
 }
 
-func (r FileTaskRepository) GetAll() ([]domain.Task, error) {
-	content, err := os.ReadFile(r.Path)
+func (r *FileTaskRepository) read() ([]domain.Task, error) {
+	data, err := os.ReadFile(r.path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return []domain.Task{}, nil
@@ -36,59 +31,64 @@ func (r FileTaskRepository) GetAll() ([]domain.Task, error) {
 		return nil, err
 	}
 
+	if len(data) == 0 {
+		return []domain.Task{}, nil
+	}
 	var tasks []domain.Task
-	if err := json.Unmarshal(content, &tasks); err != nil {
+
+	if err := json.Unmarshal(data, &tasks); err != nil {
 		return nil, err
 	}
-	return tasks, nil
+	return tasks, err
 }
 
-func (r FileTaskRepository) GetId(id int) (domain.Task, error) {
-	var task domain.Task
-	content, err := os.ReadFile(r.Path)
-
+func (r *FileTaskRepository) save(tasks []domain.Task) error {
+	data, err := json.MarshalIndent(tasks, "", "  ")
 	if err != nil {
-
-		if os.IsNotExist(err) {
-
-			return task, nil
-		}
-		return task, err
+		return err
 	}
-	var tasks []domain.Task
-	if err = json.Unmarshal(content, &tasks); err != nil {
-		return task, err
+	return os.WriteFile(r.path, data, 0644)
+}
+
+func (r FileTaskRepository) Add(description, status string) error {
+
+	tasks, err := r.read()
+	if err != nil {
+		return err
+	}
+
+	newId := 1
+	if len(tasks) > 1 {
+		sort.Slice(tasks, func(i, j int) bool {
+			return tasks[i].Id < tasks[j].Id
+		})
+		newId = tasks[len(tasks)-1].Id + 1
+	}
+	task := domain.Task{
+		Id:          newId,
+		Description: description,
+		Status:      status,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+	tasks = append(tasks, task)
+
+	return r.save(tasks)
+}
+
+func (r FileTaskRepository) GetAll() ([]domain.Task, error) {
+	return r.read()
+}
+
+func (r FileTaskRepository) GetId(id int) (*domain.Task, error) {
+	tasks, err := r.read()
+	if err != nil {
+		return nil, err
 	}
 	for _, t := range tasks {
 		if t.Id == id {
-			task = t
-			break
+			return &t, nil
 		}
 	}
-	return task, nil
-}
-
-func (r *FileTaskRepository) UpdateTask(id int, description string, status string) (domain.Task, error) {
-	var task domain.Task
-	content, err := os.ReadFile(r.Path)
-
-	if err != nil {
-
-		if os.IsNotExist(err) {
-
-			return task, nil
-		}
-		return task, err
-	}
-	var tasks []domain.Task
-	if err = json.Unmarshal(content, &tasks); err != nil {
-		return task, err
-	}
-	for _, t := range tasks {
-		if t.Id == id {
-			task = t
-			break
-		}
-	}
-
+	return nil, errors.New("task not found")
 }
