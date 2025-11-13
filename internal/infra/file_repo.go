@@ -9,11 +9,6 @@ import (
 	"time"
 )
 
-type TaskRepository interface {
-	Save(task domain.Task) error
-	GetAll() ([]domain.Task, error)
-}
-
 type FileTaskRepository struct {
 	path string
 }
@@ -91,4 +86,46 @@ func (r FileTaskRepository) GetId(id int) (*domain.Task, error) {
 		}
 	}
 	return nil, errors.New("task not found")
+}
+
+func (r *FileTaskRepository) Update(id int, description, status string) error {
+	tasks, err := r.read()
+	if err != nil {
+		return err
+	}
+	for i, t := range tasks {
+		if t.Id == id {
+			if description != "" {
+				tasks[i].Description = description
+			}
+			if status != "" {
+				tasks[i].Status = status
+			}
+			return r.save(tasks)
+		}
+	}
+	return errors.New("task not found")
+}
+
+func (r *FileTaskRepository) Delete(id int) error {
+	tasks, err := r.read()
+	if err != nil {
+		return err
+	}
+
+	newTasks := make([]domain.Task, 0, len(tasks))
+
+	isDelete := false
+	for _, t := range tasks {
+		if t.Id != id {
+			isDelete = true
+			newTasks = append(newTasks, t)
+		}
+	}
+
+	if !isDelete {
+		return errors.New("tasks not found")
+	}
+
+	return r.save(newTasks)
 }
