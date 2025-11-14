@@ -45,7 +45,7 @@ func (r *FileTaskRepository) save(tasks []domain.Task) error {
 	return os.WriteFile(r.path, data, 0644)
 }
 
-func (r FileTaskRepository) Add(description, status string) error {
+func (r *FileTaskRepository) Add(description, status string) error {
 
 	tasks, err := r.read()
 	if err != nil {
@@ -71,11 +71,11 @@ func (r FileTaskRepository) Add(description, status string) error {
 	return r.save(tasks)
 }
 
-func (r FileTaskRepository) GetAll() ([]domain.Task, error) {
+func (r *FileTaskRepository) GetAll() ([]domain.Task, error) {
 	return r.read()
 }
 
-func (r FileTaskRepository) GetId(id int) (*domain.Task, error) {
+func (r *FileTaskRepository) GetId(id int) (*domain.Task, error) {
 	tasks, err := r.read()
 	if err != nil {
 		return nil, err
