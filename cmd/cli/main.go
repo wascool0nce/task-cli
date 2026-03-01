@@ -7,10 +7,12 @@ import (
 )
 
 func main() {
-	_, err := validateArgs(os.Args[1:])
+	args, err := validateArgs(os.Args[1:])
 	if err != nil {
 		log.Fatalf("Ошибка запуска taks-cli: %v", err)
 	}
+
+	_, err := DispetcherComands(args)
 }
 
 func validateArgs(args []string) ([]string, error) {
