@@ -2,6 +2,9 @@ package cli
 
 import "errors"
 
+func Run() {
+}
+
 func DispetcherComands(args []string) {
 	method := parseMethod(args)
 }
