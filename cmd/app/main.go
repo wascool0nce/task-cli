@@ -2,22 +2,20 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
+	"task-cli/internal/cli"
+	"task-cli/internal/storage/jsonstore"
+	"task-cli/internal/usecase"
+	"time"
 )
 
 func main() {
-	args, err := validateArgs(os.Args[1:])
-	if err != nil {
-		log.Fatalf("Ошибка запуска taks-cli: %v", err)
+	path := "tasks.json"
+	store := jsonstore.New(path)
+	service := usecase.NewTaskService(store, time.Now)
+	app := cli.New(service, os.Stdout)
+	if err := app.Run(os.Args[1:]); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
-
-	_, err := DispetcherComands(args)
-}
-
-func validateArgs(args []string) ([]string, error) {
-	if len(args) < 1 {
-		return nil, fmt.Errorf("не хватает аргументов командной строки")
-	}
-	return args, nil
 }
