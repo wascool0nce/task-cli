@@ -2,6 +2,7 @@ package cli
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"task-cli/internal/usecase"
 )
@@ -26,10 +27,14 @@ func (c *CLI) Run(args []string) error {
 	method := args[0]
 	switch method {
 	case "add":
+		if len(args) < 2 {
+			return errors.New("нет описания задачи")
+		}
 		err := c.tasks.Add(args[1])
 		if err != nil {
 			return err
 		}
+		fmt.Fprintf("Task added successfully (ID: %d)")
 	default:
 		return errors.New("такого метода не существует")
 	}
