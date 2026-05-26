@@ -17,6 +17,10 @@ func New(path string) *Store {
 func (s *Store) Load() ([]domain.Task, error) {
 	data, err := os.ReadFile(s.path)
 	if os.IsNotExist(err) {
+		err := s.Save([]domain.Task{})
+		if err != nil {
+			return nil, err
+		}
 		return []domain.Task{}, nil
 	}
 
